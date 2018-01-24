@@ -33,21 +33,38 @@
 # currently assignable values: n, y
 # defined at init/Kconfig:1674
 
-from kconfiglib import Kconfig, TRI_TO_STR
+from kconfiglib import Kconfig, TRI_TO_STR, TYPE_TO_STR, Symbol, Choice, MENU, COMMENT
 import sys
 
-if len(sys.argv) < 3:
-    print('Pass symbol name (without "CONFIG_" prefix) with SCRIPT_ARG=<name>')
-    sys.exit(1)
+def indent_print(s, indent):
+    print(" "*indent + s)
 
-kconf = Kconfig(sys.argv[1])
-sym = kconf.syms[sys.argv[2]]
+def indent_print_config(sym, indent):
+	print(" "*indent + "Name = " + sym.name)
+	print(" "*indent + "Type = " + TYPE_TO_STR[sym.orig_type])
 
-print(sym)
-print("value = " + sym.str_value)
-print("visibility = " + TRI_TO_STR[sym.visibility])
-print("currently assignable values: " +
+	print(" "*indent + "currently assignable values: " +
       ", ".join([TRI_TO_STR[v] for v in sym.assignable]))
 
-for node in sym.nodes:
-    print("defined at {}:{}".format(node.filename, node.linenr))
+def print_items(node, indent):
+    while node:
+        if isinstance(node.item, Symbol):
+            indent_print_config(node.item, indent)
+
+        elif isinstance(node.item, Choice):
+            indent_print("choice", indent)
+
+        elif node.item == MENU:
+            indent_print('menu "{}"'.format(node.prompt[0]), indent)
+
+        elif node.item == COMMENT:
+            indent_print('comment "{}"'.format(node.prompt[0]), indent)
+
+
+        if node.list:
+            print_items(node.list, indent + 2)
+
+        node = node.next
+
+kconf = Kconfig(sys.argv[1])
+print_items(kconf.top_node, 0)
