@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-Gets all possible values for linux kernel config options in the context of Machine Learning data input for the TuxML Project.
+Get information about .config option types and add them to the db which will be used to generate the CSV file for Machine Learning.
 
 ## Installation
 
@@ -13,7 +13,13 @@ Clone the repository inside your kernel sources and then patch the Makefile :
     
 ## Usage
 
-    make [ARCH=<arch>] PYTHONCMD=python3 scriptconfig SCRIPT=Kanalyser/<script>.py [SCRIPT_ARG=<arg>]
+Still in the root of the kernel sources, do :
+
+    make [ARCH=<arch>] scriptconfig SCRIPT=Kanalyser/fill_types.py
+
+All entries for that architecture and version will be added (or replace the existing ones) in the database.
+
+If warnings about duplicate entries appear, don't worry.
     
 ## Acknowledgments
 
