@@ -4,7 +4,7 @@ import os
 import MySQLdb
 import DBCredentials
 
-def fill_types(input, credentials):
+def fill_types(input):
     kconf = Kconfig(input)
 
     # SQL requests
@@ -15,9 +15,10 @@ def fill_types(input, credentials):
         exit(-1)
 
     for creds in DBCredentials.db:
+        print("Filling database {} at {}".format(creds["db"], creds["host"]))
         data_fill = []
         try:
-            conn = MySQLdb.connect(**DBCredentials.db)
+            conn = MySQLdb.connect(**creds)
             cursor = conn.cursor()
             # Add new entries
             for sym in kconf.defined_syms:
