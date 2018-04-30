@@ -11,7 +11,11 @@ You need to run this once before generating CSVs.
 While in the kernel folder, run :
 
     git clone https://github.com/TuxML/Kanalyser
-    git am Kanalyser/makefile.patch
+    cd Kanalyser
+
+Change the contents of DBCredentials.py to add your databases. Then, run :
+
+    ./filltypes.sh
     
 ## Usage
 
