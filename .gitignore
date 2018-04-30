@@ -1,2 +1,4 @@
 __pycache__
 doc
+*.backup
+DBCredentials.py
