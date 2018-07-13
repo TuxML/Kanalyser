@@ -1,11 +1,15 @@
-from kconfiglib import *
+#!/usr/bin/env python3
+
+import kconfiglib
 import sys
-import os
 import MySQLdb
 import DBCredentials
 
+# Autor Pierre LE LURON, Alexis LE MASLE
+
+
 def fill_types(input):
-    kconf = Kconfig(input)
+    kconf = kconfiglib.Kconfig(input)
 
     # SQL requests
     truncate = "TRUNCATE TABLE Properties"
@@ -16,17 +20,19 @@ def fill_types(input):
         exit(-1)
 
     for creds in DBCredentials.db:
-        print("Filling database {} at {}".format(creds["db"], creds["host"]))
+        print("Filling database {} at {}".format(creds["creds"]["db"], creds["creds"]["host"]))
         data_fill = []
-        try:
-            conn = MySQLdb.connect(**creds)
-            cursor = conn.cursor()
-            # Add new entries
-            for sym in kconf.defined_syms:
-                data_fill.append((
-                    sym.name, 
-                    TYPE_TO_STR[sym.orig_type].upper()))
 
+        # Add new entries
+        for sym in set(kconf.defined_syms):
+            data_fill.append((
+                sym.name,
+                kconfiglib.TYPE_TO_STR[sym.orig_type].upper()))
+
+        conn = MySQLdb.connect(creds["creds"]["host"], creds["creds"]["user"], creds["creds"]["passwd"], creds["creds"]["db"])
+        cursor = conn.cursor()
+
+        try:
             # Remove previous entries and add properties
             cursor.execute(truncate)
             cursor.executemany(fill, data_fill)
@@ -35,7 +41,10 @@ def fill_types(input):
         except MySQLdb.Error as err:
             print("Error : Can't write to db : {}".format(err.args[1]))
             exit(-1)
+
         finally:
             conn.close()
+            cursor.close()
+
 
 fill_types(sys.argv[1])
